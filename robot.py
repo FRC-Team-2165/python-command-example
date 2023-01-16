@@ -16,11 +16,12 @@ class RobotDriveDemo(wpilib.TimedRobot):
         # Ideally, all of these will wrap all of the hardware on the robot, and we won't need
         # to declare anything else here (however, there could be a reason, just probably not a good one).
         self.drive = DriveSubsystem(4, 2, 1, 3)
-        self.controller = button.CommandXboxController(1)
+        self.controller = button.CommandXboxController(0)
 
         self.drive.setDefaultCommand(DriveCommand(self.drive, self.controller))
         
-        self.controller.Y().onTrue(TurnCommand(self.drive))
+        self.controller.Y().onTrue(TurnCommand(self.drive, 90))
+        
 
     def robotPeriodic(self) -> None:
         # This is what allows us to actually run the commands. You will almost 

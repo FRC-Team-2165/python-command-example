@@ -8,6 +8,10 @@ class DriveCommand(commands2.CommandBase):
     controller: wpilib.XboxController
 
     def __init__(self, subsystem: DriveSubsystem, controller: wpilib.XboxController):
+        # This is important. If you don't call this, you can't register any requirements, and 
+        # things will break in very weird ways.
+        super().__init__()
+        
         # Store these values so we have a reference to them later.
         self.drive_subsystem = subsystem
         self.controller = controller

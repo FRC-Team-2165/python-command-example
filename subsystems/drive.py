@@ -4,6 +4,8 @@ import commands2
 import navx
 import rev
 
+import wpimath
+
 class DriveSubsystem(commands2.SubsystemBase):
     frontLeft: rev.CANSparkMax
     frontRight: rev.CANSparkMax
@@ -15,24 +17,26 @@ class DriveSubsystem(commands2.SubsystemBase):
     gyro: navx.AHRS
 
     def __init__(self, frontLeft: int, frontRight: int, rearLeft: int, rearRight: int) -> None:
+
+        # This is super important. This calls SubsystemBase's constructor, which sets up DriveSubsystem 
+        # as an actual subsystem, according to wpilib. Otherwise this is just a class that doesn't 
+        # really do anything.
+        super().__init__()
+        
         self.frontLeft = rev.CANSparkMax(frontLeft, rev.CANSparkMax.MotorType.kBrushless)
         self.frontRight = rev.CANSparkMax(frontRight, rev.CANSparkMax.MotorType.kBrushless)
         self.rearLeft = rev.CANSparkMax(rearLeft, rev.CANSparkMax.MotorType.kBrushless)
         self.rearRight = rev.CANSparkMax(rearRight, rev.CANSparkMax.MotorType.kBrushless)
 
-        self.drive_train = MecanumDrive(frontLeft, frontRight, rearLeft, rearRight)
+        self.drive_train = MecanumDrive(self.frontLeft, self.rearLeft, self.frontRight, self.rearRight)
+        self.drive_train.setDeadband(0.1)
 
         self.gyro = navx.AHRS(wpilib.SPI.Port.kMXP)
-
-        # This is super important. This calls SubsystemBase's constructor, which sets up DriveSubsystem 
-        # as an actual subsystem, according to wpilib. Otherwise this is just a class that doesn't 
-        # really do anything.
-        super.__init__()
 
     def drive(self, x_speed: int, y_speed: int, rot: int) -> None:
         # Here we are invoking the MecanumDrive's own drive method, since we don't need to 
         # reinvent the wheel.
-        self.drive_train.driveCartesian(x_speed, y_speed, rot)
+        self.drive_train.driveCartesian(y_speed, x_speed, wpimath.applyDeadband(rot, 0.1))
 
     def fullstop(self) -> None:
         # This completely stops all motion on the robot, which is useful, since without 
